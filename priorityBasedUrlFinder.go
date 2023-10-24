@@ -4,17 +4,21 @@ import (
 	"container/heap"
 	"fmt"
 	"log"
+	// "os"
+	// "io/ioutil"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
 
+	// "github.com/gocolly/colly/v2"
 	"github.com/PuerkitoBio/goquery"
 )
 
 type URLItem struct {
 	URL      string
 	Priority int
+	wclient http.ResponseWriter
 }
 
 type PriorityQueue []*URLItem
@@ -80,6 +84,7 @@ func finder2(w http.ResponseWriter, r *http.Request) {
 	item := &URLItem{
 		URL:      startURL,
 		Priority: priority,
+		wclient:        w,
 	}
 	heap.Push(&priorityQueue, item)
 
@@ -97,6 +102,7 @@ func finder2(w http.ResponseWriter, r *http.Request) {
 
 		url := item.URL
 		priority := item.Priority
+		writerClient := item.wclient
 
 		// Check if the URL has already been visited
 		crawlTime, exists := visitedUrlTime[url]
@@ -106,7 +112,7 @@ func finder2(w http.ResponseWriter, r *http.Request) {
 				// dont visit again
 				if values, exists := subUrlInCurrentUrl[url]; exists {
 					for _, value := range values {
-						fmt.Println(value)
+						fmt.Fprintln(writerClient,value)
 					}
 				} else {
 					fmt.Printf("Key %s not found in the map\n", url)
@@ -150,13 +156,14 @@ func finder2(w http.ResponseWriter, r *http.Request) {
 			// mutex lock
 			mu.Lock()
 
-			fmt.Println(fmt.Sprintf("%d %s %d", cnt, absURL, priority))
+			fmt.Fprintln(writerClient,fmt.Sprintf("%d %s %d", cnt, absURL, priority))
 			cnt = cnt + 1
 
-			heap.Push(&priorityQueue, &URLItem{
-				URL:      absURL,
-				Priority: priority,
-			})
+			// heap.Push(&priorityQueue, &URLItem{
+			// 	URL:      absURL,
+			// 	Priority: priority,
+			// 	wclient:  writerClient,
+			// })
 
 			// map of url , sub urls in the same page.
 			subUrlInCurrentUrl[url] = append(subUrlInCurrentUrl[url], absURL)
