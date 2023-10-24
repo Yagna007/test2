@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Page Crawler</title>
+</head>
+<body>
+    <h1>Web Page Crawler</h1>
+    <form action="/crawl" method="POST" id="crawlForm">
+        <label for="url">Enter URL to Crawl:</label>
+        <input type="text" id="url" name="url" placeholder="https://example.com" required>
+        <label for="customerType">Customer Type:</label>
+        <select id="customerType" name="customerType">
+            <option value="paying">Paying Customer</option>
+            <option value="nonpaying">Non-Paying Customer</option>
+        </select>
+        <button type="submit">Crawl</button>
+    </form>
+    <div id="result"></div>
+</body>
+</html>
